@@ -50,6 +50,7 @@ $("ul.tabs").tabs("div.panes > div").on("onClick", function(event) {
 var stats_tpl = $('#stats-template');
 var errors_tpl = $('#errors-template');
 var exceptions_tpl = $('#exceptions-template');
+var slaves_tpl = $('#slave-template');
 
 $('#swarm_form').submit(function(event) {
     event.preventDefault();
@@ -97,6 +98,7 @@ var sortBy = function(field, reverse, primer){
 
 // Sorting by column
 var sortAttribute = "name";
+var slaveSortAttribute = "id";
 var desc = false;
 var report;
 $(".stats_label").click(function(event) {
@@ -107,9 +109,9 @@ $(".stats_label").click(function(event) {
     $('#stats tbody').empty();
     $('#errors tbody').empty();
     alternate = false;
-    totalRow = report.stats.pop()
-    sortedStats = (report.stats).sort(sortBy(sortAttribute, desc))
-    sortedStats.push(totalRow)
+    totalRow = report.stats.pop();
+    sortedStats = (report.stats).sort(sortBy(sortAttribute, desc));
+    sortedStats.push(totalRow);
     $('#stats tbody').jqoteapp(stats_tpl, sortedStats);
     alternate = false;
     $('#errors tbody').jqoteapp(errors_tpl, (report.errors).sort(sortBy(sortAttribute, desc)));
@@ -117,7 +119,7 @@ $(".stats_label").click(function(event) {
 
 // init charts
 var rpsChart = new LocustLineChart($(".charts-container"), "Total Requests per Second", ["RPS"], "reqs/s");
-var responseTimeChart = new LocustLineChart($(".charts-container"), "Average Response Time", ["Average Response Time"], "ms");
+var responseTimeChart = new LocustLineChart($(".charts-container"), "Response Times", ["Median Response Time", "95% percentile"], "ms");
 var usersChart = new LocustLineChart($(".charts-container"), "Number of Users", ["Users"], "users");
 
 function updateStats() {
@@ -129,17 +131,21 @@ function updateStats() {
         $("#status_text").html(report.state);
         $("#userCount").html(report.user_count);
 
-        if (typeof report.slave_count !== "undefined")
-            $("#slaveCount").html(report.slave_count)
+        if (report.slaves) {
+            slaves = (report.slaves).sort(sortBy(slaveSortAttribute, desc));
+            $("#slaves tbody").empty();
+            $("#slaves tbody").jqoteapp(slaves_tpl, slaves);
+            $("#slaveCount").html(slaves.length);
+        }
 
         $('#stats tbody').empty();
         $('#errors tbody').empty();
 
         alternate = false;
 
-        totalRow = report.stats.pop()
-        sortedStats = (report.stats).sort(sortBy(sortAttribute, desc))
-        sortedStats.push(totalRow)
+        totalRow = report.stats.pop();
+        sortedStats = (report.stats).sort(sortBy(sortAttribute, desc));
+        sortedStats.push(totalRow);
         $('#stats tbody').jqoteapp(stats_tpl, sortedStats);
         alternate = false;
         $('#errors tbody').jqoteapp(errors_tpl, (report.errors).sort(sortBy(sortAttribute, desc)));
@@ -149,7 +155,7 @@ function updateStats() {
             var total = report.stats[report.stats.length-1];
             // update charts
             rpsChart.addValue([total.current_rps]);
-            responseTimeChart.addValue([total.avg_response_time]);
+            responseTimeChart.addValue([report.current_response_time_percentile_50, report.current_response_time_percentile_95]);
             usersChart.addValue([report.user_count]);
         }
 

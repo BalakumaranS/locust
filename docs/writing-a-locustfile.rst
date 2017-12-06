@@ -34,7 +34,7 @@ With the following locustfile, each user would wait between 5 and 15 seconds bet
     class MyTaskSet(TaskSet):
         @task
         def my_task(self):
-            print "executing my_task"
+            print("executing my_task")
     
     class MyLocust(Locust):
         task_set = MyTaskSet
@@ -100,7 +100,7 @@ Here is an example::
     class MyTaskSet(TaskSet):
         @task
         def my_task(self):
-            print "Locust instance (%r) executing my_task" % (self.locust)
+            print("Locust instance (%r) executing my_task" % (self.locust))
     
     class MyLocust(Locust):
         task_set = MyTaskSet
@@ -127,7 +127,7 @@ the following example *task2* will be executed twice as much as *task1*::
 
 
 tasks attribute
---------------
+---------------
 
 Using the @task decorator to declare tasks is a convenience, and usually the best way to do 
 it. However, it's also possible to define the tasks of a TaskSet by setting the 
@@ -309,8 +309,8 @@ is an instance of a :py:class:`TaskSet <locust.core.TaskSet>` or :py:class:`Http
 class::
 
     response = self.client.get("/about")
-    print "Response status code:", response.status_code
-    print "Response content:", response.content
+    print("Response status code:", response.status_code)
+    print("Response content:", response.content)
 
 And here's an example making a POST request::
 
